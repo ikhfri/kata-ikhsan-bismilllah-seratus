@@ -2,17 +2,15 @@ import csv
 from datetime import datetime
 import os
 
-FILE = "budget.csv"
+FILE = "data.csv"
 HEADER = ["tanggal", "jumlah", "kategori", "mood", "deskripsi"]
 
-# Buat file jika belum ada
 if not os.path.exists(FILE):
     f = open(FILE, "w", newline="", encoding="utf-8")
     writer = csv.writer(f)
     writer.writerow(HEADER)
     f.close()
 
-# --- FUNGSI CRUD ---
 def tambah_data():
     tanggal = datetime.now().strftime("%Y-%m-%d %H:%M")
     jumlah = input("Nominal (Rp): ")
@@ -29,7 +27,7 @@ def tambah_data():
 def lihat_data():
     f = open(FILE, "r", encoding="utf-8")
     reader = csv.reader(f)
-    next(reader)  # lewati header
+    next(reader)
     data = list(reader)
     f.close()
 
@@ -91,7 +89,6 @@ def hapus_data():
     f.close()
     print("🗑 Data berhasil dihapus!\n")
 
-# --- MENU UTAMA ---
 while True:
     print("=== Budget x Emotion Tracker ===")
     print("1. Tambah Data")
