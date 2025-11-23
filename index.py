@@ -1,12 +1,15 @@
 import csv
 import os
+from datetime import datetime
 
 FILE = "data.csv"
 
+# Jika file belum ada → buat dengan header baru (termasuk tanggal)
 if not os.path.exists(FILE):
     with open(FILE, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["id", "nominal", "keterangan", "rating"])
+        writer.writerow(["id", "tanggal", "nominal", "keterangan", "rating"])
+
 
 def load_data():
     data = []
@@ -15,6 +18,7 @@ def load_data():
         for r in reader:
             data.append({
                 "id": int(r["id"]),
+                "tanggal": r["tanggal"],
                 "nominal": float(r["nominal"]),
                 "keterangan": r["keterangan"],
                 "rating": int(r["rating"])
@@ -24,7 +28,7 @@ def load_data():
 
 def save_data(data):
     with open(FILE, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["id", "nominal", "keterangan", "rating"])
+        writer = csv.DictWriter(f, fieldnames=["id", "tanggal", "nominal", "keterangan", "rating"])
         writer.writeheader()
         writer.writerows(data)
 
@@ -43,12 +47,13 @@ def status_total(avg):
 
 def buat_tabel(data):
     rows = [
-        ["ID", "Nominal", "Keterangan", "Rating", "Status"]
+        ["ID", "Tanggal", "Nominal", "Keterangan", "Rating", "Status"]
     ]
 
     for d in data:
         rows.append([
             d["id"],
+            d["tanggal"],
             f"Rp{d['nominal']:.0f}",
             d["keterangan"],
             d["rating"],
@@ -76,7 +81,7 @@ def tambah():
     ket = input("Keterangan: ")
 
     try:
-        rating = int(input("Rating (1-10): "))
+        rating = int(input("Rating (1-10 | 1-4=Kecewa, 5-7=Biasa, 8-10=Senang): "))
         if not 1 <= rating <= 10:
             print("Rating harus 1-10!")
             return
@@ -84,8 +89,11 @@ def tambah():
         print("Rating harus angka!")
         return
 
+    tanggal = datetime.now().strftime("%Y-%m-%d")
+
     data.append({
         "id": len(data) + 1,
+        "tanggal": tanggal,
         "nominal": nominal,
         "keterangan": ket,
         "rating": rating
@@ -102,7 +110,7 @@ def lihat():
         print("Belum ada pengeluaran.")
         return
 
-    print("\n===== DAFTAR PENGELUARAN =====\n")
+    print("\n===== DAFTAR SEMUA PENGELUARAN =====\n")
     print(buat_tabel(data))
 
     total_nominal = sum(d["nominal"] for d in data)
@@ -111,6 +119,31 @@ def lihat():
 
     print(f"Total Pengeluaran : Rp{total_nominal:.0f}")
     print(f"Rata-rata Rating  : {avg:.1f}   {status_total(avg)}\n")
+
+
+def lihat_perhari():
+    data = load_data()
+    if not data:
+        print("Belum ada data.")
+        return
+
+    tanggal = input("Masukkan tanggal (YYYY-MM-DD): ")
+
+    # Filter data sesuai input tanggal
+    hasil = [d for d in data if d["tanggal"] == tanggal]
+
+    if not hasil:
+        print("Tidak ada pengeluaran pada tanggal tersebut.")
+        return
+
+    print(f"\n===== PENGELUARAN TANGGAL {tanggal} =====\n")
+    print(buat_tabel(hasil))
+
+    total_nominal = sum(d["nominal"] for d in hasil)
+    avg_rating = sum(d["rating"] for d in hasil) / len(hasil)
+
+    print(f"Total Pengeluaran : Rp{total_nominal:.0f}")
+    print(f"Rata-rata Rating  : {avg_rating:.1f}  {status_total(avg_rating)}\n")
 
 
 def hapus():
@@ -135,15 +168,15 @@ def hapus():
     print("✓ Pengeluaran dihapus.")
 
 
-
 while True:
     print("\n=== Tracker Pengeluaran Anak Kost ===")
     print("1. Tambah Pengeluaran")
-    print("2. Lihat Pengeluaran")
+    print("2. Lihat Semua Pengeluaran")
     print("3. Hapus Pengeluaran")
     print("4. Keluar")
+    print("5. Lihat Pengeluaran Per Hari")
 
-    pilih = input("Pilih (1-4): ")
+    pilih = input("Pilih (1-5): ")
 
     if pilih == "1":
         tambah()
@@ -154,5 +187,7 @@ while True:
     elif pilih == "4":
         print("Sampai jumpa!")
         break
+    elif pilih == "5":
+        lihat_perhari()
     else:
         print("Pilihan tidak valid!")
