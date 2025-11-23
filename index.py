@@ -1,113 +1,158 @@
 import csv
-from datetime import datetime
 import os
 
 FILE = "data.csv"
-HEADER = ["tanggal", "jumlah", "kategori", "mood", "deskripsi"]
 
 if not os.path.exists(FILE):
-    f = open(FILE, "w", newline="", encoding="utf-8")
-    writer = csv.writer(f)
-    writer.writerow(HEADER)
-    f.close()
+    with open(FILE, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["id", "nominal", "keterangan", "rating"])
 
-def tambah_data():
-    tanggal = datetime.now().strftime("%Y-%m-%d %H:%M")
-    jumlah = input("Nominal (Rp): ")
-    kategori = input("Kategori: ")
-    mood = input("Mood: ")
-    deskripsi = input("Deskripsi: ")
+def load_data():
+    data = []
+    with open(FILE, "r") as f:
+        reader = csv.DictReader(f)
+        for r in reader:
+            data.append({
+                "id": int(r["id"]),
+                "nominal": float(r["nominal"]),
+                "keterangan": r["keterangan"],
+                "rating": int(r["rating"])
+            })
+    return data
 
-    f = open(FILE, "a", newline="", encoding="utf-8")
-    writer = csv.writer(f)
-    writer.writerow([tanggal, jumlah, kategori, mood, deskripsi])
-    f.close()
-    print("✅ Data berhasil ditambahkan!\n")
 
-def lihat_data():
-    f = open(FILE, "r", encoding="utf-8")
-    reader = csv.reader(f)
-    next(reader)
-    data = list(reader)
-    f.close()
+def save_data(data):
+    with open(FILE, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["id", "nominal", "keterangan", "rating"])
+        writer.writeheader()
+        writer.writerows(data)
+
+
+def status_item(r):
+    if r <= 4: return "😞 Kecewa"
+    if r <= 7: return "🙂 Biasa"
+    return "😍 Senang"
+
+
+def status_total(avg):
+    if avg <= 4: return "😢 Sangat Kecewa"
+    if avg <= 7: return "🙂 Cukup Puas"
+    return "😍 Sangat Senang"
+
+
+def buat_tabel(data):
+    rows = [
+        ["ID", "Nominal", "Keterangan", "Rating", "Status"]
+    ]
+
+    for d in data:
+        rows.append([
+            d["id"],
+            f"Rp{d['nominal']:.0f}",
+            d["keterangan"],
+            d["rating"],
+            status_item(d["rating"])
+        ])
+
+    col_widths = [max(len(str(row[i])) for row in rows) for i in range(len(rows[0]))]
+
+    tabel = ""
+    for row in rows:
+        line = " | ".join(str(row[i]).ljust(col_widths[i]) for i in range(len(row)))
+        tabel += line + "\n"
+    return tabel
+
+
+def tambah():
+    data = load_data()
+
+    try:
+        nominal = float(input("Nominal: "))
+    except:
+        print("Nominal harus angka!")
+        return
+
+    ket = input("Keterangan: ")
+
+    try:
+        rating = int(input("Rating (1-10): "))
+        if not 1 <= rating <= 10:
+            print("Rating harus 1-10!")
+            return
+    except:
+        print("Rating harus angka!")
+        return
+
+    data.append({
+        "id": len(data) + 1,
+        "nominal": nominal,
+        "keterangan": ket,
+        "rating": rating
+    })
+
+    save_data(data)
+    print("✓ Pengeluaran ditambahkan.")
+
+
+def lihat():
+    data = load_data()
 
     if not data:
-        print("Belum ada data.\n")
+        print("Belum ada pengeluaran.")
         return
 
-    total = 0
-    for i, row in enumerate(data, 1):
-        tanggal, jumlah, kategori, mood, deskripsi = row
-        total += float(jumlah)
-        print(f"{i}. [{tanggal}] Rp{jumlah} - {kategori} - {mood} - {deskripsi}")
+    print("\n===== DAFTAR PENGELUARAN =====\n")
+    print(buat_tabel(data))
 
-    print(f"\n💰 Total pengeluaran: Rp{total:,.0f}\n")
+    total_nominal = sum(d["nominal"] for d in data)
+    total_rating = sum(d["rating"] for d in data)
+    avg = total_rating / len(data)
 
-def ubah_data():
-    lihat_data()
-    nomor = int(input("Pilih nomor data yang ingin diubah: ")) - 1
+    print(f"Total Pengeluaran : Rp{total_nominal:.0f}")
+    print(f"Rata-rata Rating  : {avg:.1f}   {status_total(avg)}\n")
 
-    f = open(FILE, "r", encoding="utf-8")
-    reader = list(csv.reader(f))
-    f.close()
 
-    if nomor + 1 >= len(reader):
-        print("❌ Nomor tidak valid!\n")
+def hapus():
+    data = load_data()
+
+    try:
+        id_del = int(input("ID yang dihapus: "))
+    except:
+        print("ID harus angka!")
         return
 
-    new_mood = input("Mood baru: ")
-    new_harga= input("ganti harga: ")
-    new_desc = input("Deskripsi baru: ")
+    baru = [d for d in data if d["id"] != id_del]
 
-    reader[nomor + 1][1] = new_harga or reader[nomor + 1][1]
-    reader[nomor + 1][3] = new_mood or reader[nomor + 1][3]
-    reader[nomor + 1][4] = new_desc or reader[nomor + 1][4]
-
-    f = open(FILE, "w", newline="", encoding="utf-8")
-    writer = csv.writer(f)
-    writer.writerows(reader)
-    f.close()
-    print("✅ Data berhasil diubah!\n")
-
-def hapus_data():
-    lihat_data()
-    nomor = int(input("Pilih nomor data yang ingin dihapus: ")) - 1
-
-    f = open(FILE, "r", encoding="utf-8")
-    reader = list(csv.reader(f))
-    f.close()
-
-    if nomor + 1 >= len(reader):
-        print("❌ Nomor tidak valid!\n")
+    if len(baru) == len(data):
+        print("ID tidak ditemukan.")
         return
 
-    del reader[nomor + 1]
+    for i, d in enumerate(baru):
+        d["id"] = i + 1
 
-    f = open(FILE, "w", newline="", encoding="utf-8")
-    writer = csv.writer(f)
-    writer.writerows(reader)
-    f.close()
-    print("🗑 Data berhasil dihapus!\n")
+    save_data(baru)
+    print("✓ Pengeluaran dihapus.")
+
+
 
 while True:
-    print("=== Budget x Emotion Tracker ===")
-    print("1. Tambah Data")
-    print("2. Lihat Data")
-    print("3. Ubah Data")
-    print("4. Hapus Data")
-    print("5. Keluar")
-    pilih = input("Pilih menu (1-5): ")
+    print("\n=== Tracker Pengeluaran Anak Kost ===")
+    print("1. Tambah Pengeluaran")
+    print("2. Lihat Pengeluaran")
+    print("3. Hapus Pengeluaran")
+    print("4. Keluar")
+
+    pilih = input("Pilih (1-4): ")
 
     if pilih == "1":
-        tambah_data()
+        tambah()
     elif pilih == "2":
-        lihat_data()
+        lihat()
     elif pilih == "3":
-        ubah_data()
+        hapus()
     elif pilih == "4":
-        hapus_data()
-    elif pilih == "5":
-        print("Sampai jumpa! 💚")
+        print("Sampai jumpa!")
         break
     else:
-        print("Pilihan tidak valid!\n")
+        print("Pilihan tidak valid!")
