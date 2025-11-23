@@ -1,193 +1,254 @@
-import csv
-import os
+import csv, os
 from datetime import datetime
 
 FILE = "data.csv"
 
-# Jika file belum ada → buat dengan header baru (termasuk tanggal)
 if not os.path.exists(FILE):
     with open(FILE, "w", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow(["id", "tanggal", "nominal", "keterangan", "rating"])
+        csv.writer(f).writerow(["id", "tanggal", "nominal", "keterangan", "rating"])
+
+def clear():
+    os.system("cls" if os.name == "nt" else "clear")
+def load():
+    with open(FILE) as f:
+        return [r for r in csv.DictReader(f)]
 
 
-def load_data():
-    data = []
-    with open(FILE, "r") as f:
-        reader = csv.DictReader(f)
-        for r in reader:
-            data.append({
-                "id": int(r["id"]),
-                "tanggal": r["tanggal"],
-                "nominal": float(r["nominal"]),
-                "keterangan": r["keterangan"],
-                "rating": int(r["rating"])
-            })
-    return data
-
-
-def save_data(data):
+def save(data):
     with open(FILE, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["id", "tanggal", "nominal", "keterangan", "rating"])
-        writer.writeheader()
-        writer.writerows(data)
+        w = csv.DictWriter(f, fieldnames=["id", "tanggal", "nominal", "keterangan", "rating"])
+        w.writeheader()
+        w.writerows(data)
 
 
-def status_item(r):
-    if r <= 4: return "😞 Kecewa"
-    if r <= 7: return "🙂 Biasa"
-    return "😍 Senang"
+def rating_status(r):
+    r = int(r)
+    if r <= 3:
+        return "😭 Sangat Kecewa"
+    elif r <= 6:
+        return "🙂 Biasa Saja"
+    elif r <= 8:
+        return "😁 Puas"
+    else:
+        return "🤩 Sangat Puas"
 
 
-def status_total(avg):
-    if avg <= 4: return "😢 Sangat Kecewa"
-    if avg <= 7: return "🙂 Cukup Puas"
-    return "😍 Sangat Senang"
-
-
-def buat_tabel(data):
-    rows = [
-        ["ID", "Tanggal", "Nominal", "Keterangan", "Rating", "Status"]
-    ]
-
+def tabel(data):
+    rows = [["🆔 ID","📆 Tanggal","💰 Nominal","📝 Keterangan","⭐ Rating","🎭 Status"]]
+    
     for d in data:
+        status = rating_status(d["rating"])
         rows.append([
             d["id"],
             d["tanggal"],
-            f"Rp{d['nominal']:.0f}",
+            f"Rp{float(d['nominal']):.0f}",
             d["keterangan"],
             d["rating"],
-            status_item(d["rating"])
+            status
         ])
 
-    col_widths = [max(len(str(row[i])) for row in rows) for i in range(len(rows[0]))]
-
-    tabel = ""
-    for row in rows:
-        line = " | ".join(str(row[i]).ljust(col_widths[i]) for i in range(len(row)))
-        tabel += line + "\n"
-    return tabel
+    w = [max(len(str(r[i])) for r in rows) for i in range(len(rows[0]))]
+    return "\n".join(" | ".join(str(r[i]).ljust(w[i]) for i in range(len(r))) for r in rows)
 
 
 def tambah():
-    data = load_data()
+    data = load()
+
+    print("\n💸 Tambah Pengeluaran")
 
     try:
-        nominal = float(input("Nominal: "))
+        nominal = float(input("💰 Nominal: "))
     except:
-        print("Nominal harus angka!")
-        return
+        return print("❌ Nominal harus angka!")
 
-    ket = input("Keterangan: ")
+    ket = input("📝 Keterangan: ")
+
+    print("\n⭐ Beri Rating (1–10)")
+    print(" 1–3  : 😭 Sangat Kecewa")
+    print(" 4–6  : 🙂 Biasa Saja")
+    print(" 7–8  : 😁 Puas")
+    print(" 9–10 : 🤩 Sangat Puas")
 
     try:
-        rating = int(input("Rating (1-10 | 1-4=Kecewa, 5-7=Biasa, 8-10=Senang): "))
+        rating = int(input("⭐ Rating: "))
         if not 1 <= rating <= 10:
-            print("Rating harus 1-10!")
-            return
+            return print("⚠️ Rating harus 1–10!")
     except:
-        print("Rating harus angka!")
-        return
-
-    tanggal = datetime.now().strftime("%Y-%m-%d")
+        return print("❌ Rating harus angka!")
 
     data.append({
-        "id": len(data) + 1,
-        "tanggal": tanggal,
+        "id": str(len(data)+1),
+        "tanggal": datetime.now().strftime("%Y-%m-%d"),
         "nominal": nominal,
         "keterangan": ket,
         "rating": rating
     })
 
-    save_data(data)
-    print("✓ Pengeluaran ditambahkan.")
+    save(data)
+    clear()
+    print("✅ Data berhasil ditambahkan!\n")
 
-
-def lihat():
-    data = load_data()
+def update_data():
+    data = load()
+    clear()
 
     if not data:
-        print("Belum ada pengeluaran.")
-        return
+        return print("📭 Belum ada data untuk diupdate.")
 
-    print("\n===== DAFTAR SEMUA PENGELUARAN =====\n")
-    print(buat_tabel(data))
+    print("\n✏️ DATA SAAT INI")
+    print(tabel(data))
+    print("\n")
 
-    total_nominal = sum(d["nominal"] for d in data)
-    total_rating = sum(d["rating"] for d in data)
-    avg = total_rating / len(data)
+    id_edit = input("🆔 Masukkan ID yang ingin diupdate: ")
 
-    print(f"Total Pengeluaran : Rp{total_nominal:.0f}")
-    print(f"Rata-rata Rating  : {avg:.1f}   {status_total(avg)}\n")
+    # Cek ID valid
+    dlist = [d for d in data if d["id"] == id_edit]
+    if not dlist:
+        return print("❌ ID tidak ditemukan!\n")
+
+    d = dlist[0]
+
+    print("\n➡️ Tekan ENTER jika tidak ingin mengubah field.\n")
+
+    new_nom = input(f"💰 Nominal ({d['nominal']}): ")
+    if new_nom.strip() != "":
+        try:
+            d["nominal"] = float(new_nom)
+        except:
+            return print("❌ Nominal harus angka!")
+
+    new_ket = input(f"📝 Keterangan ({d['keterangan']}): ")
+    if new_ket.strip() != "":
+        d["keterangan"] = new_ket
+
+    new_rating = input(f"⭐ Rating ({d['rating']}): ")
+    if new_rating.strip() != "":
+        try:
+            r = int(new_rating)
+            if not 1 <= r <= 10:
+                return print("⚠️ Rating harus 1–10!")
+            d["rating"] = r
+        except:
+            return print("❌ Rating harus angka!")
+
+    save(data)
+    clear()
+    print("\n✅ Data berhasil diupdate!\n")
 
 
-def lihat_perhari():
-    data = load_data()
+
+def lihat(data=None):
+    clear()
+    data = load() if data is None else data
     if not data:
-        print("Belum ada data.")
-        return
+        return print("📭 Belum ada data.")
 
-    tanggal = input("Masukkan tanggal (YYYY-MM-DD): ")
+    print("\n📊 TABEL PENGELUARAN")
+    print(tabel(data))
 
-    # Filter data sesuai input tanggal
-    hasil = [d for d in data if d["tanggal"] == tanggal]
+    total = sum(float(d["nominal"]) for d in data)
+    avg = sum(int(d["rating"]) for d in data) / len(data)
+    status = rating_status(avg)
 
-    if not hasil:
-        print("Tidak ada pengeluaran pada tanggal tersebut.")
-        return
+    print(f"\n📌 Total Pengeluaran: 💰 Rp{total:.0f}")
+    print(f"📌 Rata-rata Rating: ⭐ {avg:.1f} — {status}\n")
 
-    print(f"\n===== PENGELUARAN TANGGAL {tanggal} =====\n")
-    print(buat_tabel(hasil))
 
-    total_nominal = sum(d["nominal"] for d in hasil)
-    avg_rating = sum(d["rating"] for d in hasil) / len(hasil)
+def lihat_hari():
+    t = input("📅 Masukkan tanggal (YYYY-MM-DD): ")
+    data = [d for d in load() if d["tanggal"] == t]
 
-    print(f"Total Pengeluaran : Rp{total_nominal:.0f}")
-    print(f"Rata-rata Rating  : {avg_rating:.1f}  {status_total(avg_rating)}\n")
+    if not data:
+        return print("❌ Tidak ada data tanggal tersebut.")
+
+    lihat(data)
 
 
 def hapus():
-    data = load_data()
+    data = load()
+    clear()
 
-    try:
-        id_del = int(input("ID yang dihapus: "))
-    except:
-        print("ID harus angka!")
-        return
+    if not data:
+        return print("📭 Belum ada data untuk dihapus.")
 
-    baru = [d for d in data if d["id"] != id_del]
+    print("\n📊 DATA SAAT INI")
+    print(tabel(data))
+    print("\n")
 
-    if len(baru) == len(data):
-        print("ID tidak ditemukan.")
-        return
+    id_del = input("🆔 Masukkan ID yang ingin dihapus: ")
 
-    for i, d in enumerate(baru):
-        d["id"] = i + 1
+    if id_del not in [d["id"] for d in data]:
+        return print("❌ ID tidak ditemukan!\n")
 
-    save_data(baru)
-    print("✓ Pengeluaran dihapus.")
+    data = [d for d in data if d["id"] != id_del]
 
+    for i, d in enumerate(data):
+        d["id"] = str(i+1)
+
+    save(data)
+    clear()
+    print("🗑️ Data berhasil dihapus!\n")
+def mood_header_hari_ini():
+    data = load()
+    today = datetime.now().strftime("%Y-%m-%d")
+
+    # Filter hanya data hari ini
+    today_data = [d for d in data if d["tanggal"] == today]
+
+    if not today_data:
+        return f"🎭 Mood Hari Ini: - (Belum ada data untuk {today})"
+
+    avg = sum(int(d["rating"]) for d in today_data) / len(today_data)
+
+    if avg <= 4:
+        return f"🎭 Mood Hari Ini: 😭 {avg:.1f} — Sangat Kecewa"
+    elif avg <= 6:
+        return f"🎭 Mood Hari Ini: 🙂 {avg:.1f} — Biasa Saja"
+    elif avg <= 8:
+        return f"🎭 Mood Hari Ini: 😁 {avg:.1f} — Puas"
+    else:
+        return f"🎭 Mood Hari Ini: 🤩 {avg:.1f} — Sangat Puas"
 
 while True:
-    print("\n=== Tracker Pengeluaran Anak Kost ===")
-    print("1. Tambah Pengeluaran")
-    print("2. Lihat Semua Pengeluaran")
-    print("3. Hapus Pengeluaran")
-    print("4. Keluar")
-    print("5. Lihat Pengeluaran Per Hari")
+    print("\n============================")
+    print("💵 **MOOD SPENDER** 💵")
+    print("============================")
+    print(mood_header_hari_ini())
+    print("============================")
+    print("1️⃣  Tambah Pengeluaran")
+    print("2️⃣  Update Data")
+    print("3️⃣  Lihat Semua")
+    print("4️⃣  Hapus Data")
+    print("5️⃣  Keluar")
+    print("6️⃣  Lihat Per Hari")
+    print("============================")
 
-    pilih = input("Pilih (1-5): ")
+    p = input("👉 Pilih menu: ")
 
-    if pilih == "1":
+    if p == "1":
+        clear()
         tambah()
-    elif pilih == "2":
+
+    elif p == "2":
+        clear()
+        update_data()
+
+    elif p == "3":
+        clear()
         lihat()
-    elif pilih == "3":
+
+    elif p == "4":
+        clear()
         hapus()
-    elif pilih == "4":
-        print("Sampai jumpa!")
+
+    elif p == "5":
+        print("👋 Keluar... Sampai jumpa!\n")
         break
-    elif pilih == "5":
-        lihat_perhari()
+
+    elif p == "6":
+        clear()
+        lihat_hari()
+
     else:
-        print("Pilihan tidak valid!")
+        print("❌ Pilihan tidak dikenal!")
+
