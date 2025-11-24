@@ -61,11 +61,12 @@ def tambah():
     nom_input = input("💰 Nominal: ").strip()
     if nom_input == "":
         clear()
-        return  # user batal → kembali ke menu utama
+        return 
 
     try:
         nominal = float(nom_input)
     except:
+        clear()
         return print("❌ Nominal harus angka!")
 
     ket = input("📝 Keterangan: ").strip()
@@ -81,7 +82,8 @@ def tambah():
         if not 1 <= rating <= 10:
             return print("⚠️ Rating harus 1–10!")
     except:
-        return print("❌ Rating harus angka!")
+        clear()
+        return print("❌ Rating harus angka bulat!")
 
     data.append({
         "id": str(len(data)+1),
@@ -114,6 +116,7 @@ def update_data():
     # Cek ID valid
     dlist = [d for d in data if d["id"] == id_edit]
     if not dlist:
+        clear()
         return print("❌ ID tidak ditemukan!\n")
 
     d = dlist[0]
@@ -125,6 +128,7 @@ def update_data():
         try:
             d["nominal"] = float(new_nom)
         except:
+            clear()
             return print("❌ Nominal harus angka!")
 
     new_ket = input(f"📝 Keterangan ({d['keterangan']}): ").strip()
@@ -136,9 +140,11 @@ def update_data():
         try:
             r = int(new_rating)
             if not 1 <= r <= 10:
+                clear()
                 return print("⚠️ Rating harus 1–10!")
             d["rating"] = r
         except:
+            clear()
             return print("❌ Rating harus angka!")
 
     save(data)
@@ -158,7 +164,7 @@ def lihat(data=None):
     avg = sum(int(d["rating"]) for d in data) / len(data)
     status = rating_status(avg)
 
-    print(f"\n📌 Total Pengeluaran: 💰 Rp{total:.0f}")
+    print(f"\n📌 Total Pengeluaran: 💰 Rp{total:.0f}\n")
     print(f"📌 Rata-rata Rating: ⭐ {avg:.1f} — {status}\n")
 
     lihat_back = input("\n⬅️ Tekan ENTER untuk kembali ke main menu...").strip()
@@ -177,6 +183,7 @@ def lihat_hari():
         clear()
         return
     if not data:
+        clear()
         return print("❌ Tidak ada data tanggal tersebut.")
 
     lihat(data)
@@ -203,10 +210,17 @@ def hapus():
     elif pilihan == "":
         clear()
         return
+    elif pilihan == "no":
+        pass
+    else:
+        clear()
+        print("❌ Pilihan tidak valid! Ketik 'yes', 'no', atau ENTER untuk batal.\n")
+        return
 
     id_del = input("🆔 Masukkan ID yang ingin dihapus: ").strip()
 
     if id_del not in [d["id"] for d in data]:
+        clear()
         return print("❌ ID tidak ditemukan 😤!\n")
 
     data = [d for d in data if d["id"] != id_del]
@@ -262,10 +276,11 @@ def ranking_kategori():
         avg = sum(ratings) / len(ratings)
         ranking.append((ket, avg, len(ratings)))
 
-    # Fungsi sorting 
+    # fungsi ambil rata tanpa lambda
     def ambil_rata(item):
         return item[1]
 
+    # sorting menggunakan fungsi biasa
     ranking.sort(key=ambil_rata, reverse=True)
 
     print("\n🏆 RANKING KATEGORI BERDASARKAN MOOD RATA-RATA\n")
@@ -273,14 +288,23 @@ def ranking_kategori():
     print("-----------------------------------")
 
     for ket, avg, count in ranking:
-        print(f"{ket.capitalize():<15} ⭐ {avg:.2f}   ({count}x)")
+        print(f"{ket.capitalize():<20} ⭐ {avg:.2f}   ({count}x)")
 
+    # --- Menentukan juara ---
     if ranking:
-        top = ranking[0][0].capitalize()
-        print(f"\n\n➡️ Sejauh ini yang paling membuatmu happy adalah: {top} 🤓\n")
+        top_rating = ranking[0][1]  # nilai tertinggi
 
-    print("\n")
+        # ambil semua kategori yang punya rata-rata sama
+        juara = [ket.capitalize() for ket, avg, count in ranking if avg == top_rating]
 
+        print("\n")
+        if len(juara) == 1:
+            print(f"🤓 Sejauh ini yang paling membuatmu happy adalah: {juara[0]} 🤓\n")
+        else:
+            print("🤓 Sejauh ini yang paling membuatmu happy adalah:\n")
+            for j in juara:
+                print(f" • {j}")
+            
     back_ranking = input("\n⬅️ Tekan ENTER untuk kembali ke main menu...").strip()
     if back_ranking == "":
         clear()
@@ -408,7 +432,9 @@ while True:
     elif p == "moodspender":
         secret_menu()
         continue
-
+    elif p == "":
+        clear()
+        print('\n❌ Pilihan tidak dikenal!')
     else:
         print("\n❌ Pilihan tidak dikenal!")
 
