@@ -266,7 +266,45 @@ def ranking_kategori():
 
     input("\n⬅️ Tekan ENTER untuk kembali ke main menu...")
 
+def secret_menu():
+    clear()
+    print("""
+💸 SECRET MENU: MOODSPENDER LORE 🤓
+=======================================
 
+MoodSpender adalah aplikasi kecil yang dibuat oleh 
+kelompok "kata ikhsan bismillah 100" untuk 
+mengatur pengeluaran sekaligus ngelacak mood 
+berdasarkan apa yang kamu beli.
+
+Fungsi utamanya:
+• Nyatet pengeluaran harian
+• Ngasih rating tiap transaksi
+• Ngerangkum mood keseluruhan
+• Ngeranking kategori yang bikin kamu paling happy
+
+Kelebihan MoodSpender:
+• Simple banget, ga ribet
+• Mood tracking dan money tracking jadi satu tempat
+• Auto ngitung statistik
+• Tabel rapi, estetik, dan gampang dibaca
+
+Di tengah persaingan ketat bersama kurang lebih 80 kelompok yang semuanya 
+harus bikin proyek unik dan gak ada yang boleh sama tema-nya, kami pada 
+awalnya mau bikin financial tracker buat anak kos. Tapi kok rasanya itu 
+terlalu biasa dan kayaknya bakal banyak yang milih juga. Setelah brainstorming, 
+kami sadar kalau generasi sekarang, terutama Gen Z, tuh peka banget sama kondisi 
+mental mereka. Dari situ, muncul ide buat gak cuma nyatet pengeluaran, 
+tapi juga kaitin sama mood pengguna. Jadi pengeluaran gak cuma angka doang, 
+tapi juga ngaruh sama suasana hati. Tujuannya biar bisa ngerti pola mereka, 
+kami bikin Moodspender, program yang gabungin catatan keuangan sederhana 
+sama pelacakan mood, supaya pengguna bisa ngenalin kebiasaan, emosi, dan 
+apa aja yang ngaruh ke keputusan mereka. Jadinya, proyek ini jadi ciri khas 
+kelompok kami dan bikin beda dari yang lain dengan cara yang meaningful.
+          
+Jangan bilang siapa-siapa kamu nemu menu ini 🤫 (ketahuan sih kalo buka teks editornya).
+""")
+    input("\n⬅️ Tekan ENTER untuk kembali ke main menu...")
 
 while True:
     print("\n=================================")
@@ -314,7 +352,7 @@ while True:
 
     print("\n=================================\n")
 
-    p = input("👉 Pilih menu: ").strip()
+    p = input("👉 Pilih menu: ").strip().lower()
 
     if p == "1":
         clear()
@@ -343,6 +381,10 @@ while True:
     elif p == "7":
        print("\nKeluar ya? Baiklah, semoga moodmu tidak makin kacau di luar sana. Sampai jumpa lagi 👋!\n")
        break
+    
+    if p == "moodspender":
+        secret_menu()
+        continue
 
     else:
         print("\n❌ Pilihan tidak dikenal!")
