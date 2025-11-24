@@ -58,8 +58,13 @@ def tambah():
 
     print('⬅️ Tekan ENTER untuk kembali ke main menu\n')
 
+    nom_input = input("💰 Nominal: ").strip()
+    if nom_input == "":
+        clear()
+        return  # user batal → kembali ke menu utama
+
     try:
-        nominal = float(input("💰 Nominal: "))
+        nominal = float(nom_input)
     except:
         return print("❌ Nominal harus angka!")
 
@@ -101,7 +106,10 @@ def update_data():
     print(tabel(data))
     print("\n")
     print('⬅️ Tekan ENTER untuk kembali ke main menu\n')
-    id_edit = input("🆔 Masukkan ID yang ingin diupdate: ")
+    id_edit = input("🆔 Masukkan ID yang ingin diupdate: ").strip()
+    if id_edit == "":
+        clear()
+        return 
 
     # Cek ID valid
     dlist = [d for d in data if d["id"] == id_edit]
@@ -153,7 +161,11 @@ def lihat(data=None):
     print(f"\n📌 Total Pengeluaran: 💰 Rp{total:.0f}")
     print(f"📌 Rata-rata Rating: ⭐ {avg:.1f} — {status}\n")
 
-    input("\n⬅️ Tekan ENTER untuk kembali ke main menu...")
+    lihat_back = input("\n⬅️ Tekan ENTER untuk kembali ke main menu...").strip()
+    if lihat_back == "":
+        clear()
+        return 
+    
 
 
 def lihat_hari():
@@ -161,7 +173,9 @@ def lihat_hari():
 
     t = input("📅 Masukkan tanggal (YYYY-MM-DD): ")
     data = [d for d in load() if d["tanggal"] == t]
-
+    if t == "":
+        clear()
+        return
     if not data:
         return print("❌ Tidak ada data tanggal tersebut.")
 
@@ -177,7 +191,7 @@ def hapus():
     print("\n📊 DATA SAAT INI")
     print(tabel(data))
     print("\n")
-    print('⬅️ Tekan ENTER 2x untuk kembali ke main menu\n')
+    print('⬅️ Tekan ENTER untuk kembali ke main menu\n')
 
     pilihan = input("Hapus semua data 🫣? (yes/no): ").strip().lower()
 
@@ -186,6 +200,9 @@ def hapus():
         clear()
         print("✨ Semua data berhasil dihapus 🫣!\n")
         return  
+    elif pilihan == "":
+        clear()
+        return
 
     id_del = input("🆔 Masukkan ID yang ingin dihapus: ").strip()
 
@@ -264,7 +281,10 @@ def ranking_kategori():
 
     print("\n")
 
-    input("\n⬅️ Tekan ENTER untuk kembali ke main menu...")
+    back_ranking = input("\n⬅️ Tekan ENTER untuk kembali ke main menu...").strip()
+    if back_ranking == "":
+        clear()
+        return
 
 def secret_menu():
     clear()
@@ -304,7 +324,10 @@ kelompok kami dan bikin beda dari yang lain dengan cara yang meaningful.
           
 Jangan bilang siapa-siapa kamu nemu menu ini 🤫 (ketahuan sih kalo buka teks editornya).
 """)
-    input("\n⬅️ Tekan ENTER untuk kembali ke main menu...")
+    back_secret = input("\n⬅️ Tekan ENTER untuk kembali ke main menu...").strip()
+    if back_secret == "":
+        clear()
+        return
 
 while True:
     print("\n=================================")
@@ -382,7 +405,7 @@ while True:
        print("\nKeluar ya? Baiklah, semoga moodmu tidak makin kacau di luar sana. Sampai jumpa lagi 👋!\n")
        break
     
-    if p == "moodspender":
+    elif p == "moodspender":
         secret_menu()
         continue
 
