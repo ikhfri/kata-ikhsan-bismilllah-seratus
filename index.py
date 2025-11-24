@@ -108,7 +108,7 @@ def update_data():
 
     d = dlist[0]
 
-    print("\n➡️ Tekan ENTER jika tidak ingin mengubah field.\n")
+    print("\n⬅️ Tekan ENTER jika tidak ingin mengubah field.\n")
 
     new_nom = input(f"💰 Nominal ({d['nominal']}): ")
     if new_nom.strip() != "":
@@ -151,6 +151,9 @@ def lihat(data=None):
     print(f"\n📌 Total Pengeluaran: 💰 Rp{total:.0f}")
     print(f"📌 Rata-rata Rating: ⭐ {avg:.1f} — {status}\n")
 
+    input("\n⬅️ Tekan ENTER untuk kembali ke main menu...")
+
+
 def lihat_hari():
     t = input("📅 Masukkan tanggal (YYYY-MM-DD): ")
     data = [d for d in load() if d["tanggal"] == t]
@@ -171,10 +174,18 @@ def hapus():
     print(tabel(data))
     print("\n")
 
+    pilihan = input("Hapus semua data 🫣? (yes/no): ").strip().lower()
+
+    if pilihan == "yes":
+        save([])  
+        clear()
+        print("✨ Semua data berhasil dihapus 🫣!\n")
+        return  
+
     id_del = input("🆔 Masukkan ID yang ingin dihapus: ")
 
     if id_del not in [d["id"] for d in data]:
-        return print("❌ ID tidak ditemukan!\n")
+        return print("❌ ID tidak ditemukan 😤!\n")
 
     data = [d for d in data if d["id"] != id_del]
 
@@ -183,7 +194,7 @@ def hapus():
 
     save(data)
     clear()
-    print("🗑️ Data berhasil dihapus!\n")
+    print("🗑️ Data berhasil dihapus 🤓!\n")
 
 def mood_header_hari_ini():
     data = load()
@@ -244,6 +255,9 @@ def ranking_kategori():
 
     print("\n")
 
+    input("\n⬅️ Tekan ENTER untuk kembali ke main menu...")
+
+
 
 while True:
     print("\n=================================")
@@ -279,7 +293,7 @@ while True:
 --------------------------""")
     print("""--------------------------
 |                        |
-|   (6) Lihat Per Hari   |
+|     (6) Cari Data      |
 |                        |
 --------------------------""")
     print("""--------------------------
