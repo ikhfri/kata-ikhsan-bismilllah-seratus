@@ -56,12 +56,14 @@ def tambah():
 =======================================\n"""
 )
 
+    print('⬅️ Tekan ENTER untuk kembali ke main menu\n')
+
     try:
         nominal = float(input("💰 Nominal: "))
     except:
         return print("❌ Nominal harus angka!")
 
-    ket = input("📝 Keterangan: ")
+    ket = input("📝 Keterangan: ").strip()
 
     print("\n⭐ Beri Rating (1–10)")
     print(" 1–3  : 😭 Sangat Kecewa")
@@ -98,7 +100,7 @@ def update_data():
     print("\n✏️ DATA SAAT INI")
     print(tabel(data))
     print("\n")
-
+    print('⬅️ Tekan ENTER untuk kembali ke main menu\n')
     id_edit = input("🆔 Masukkan ID yang ingin diupdate: ")
 
     # Cek ID valid
@@ -110,14 +112,14 @@ def update_data():
 
     print("\n⬅️ Tekan ENTER jika tidak ingin mengubah field.\n")
 
-    new_nom = input(f"💰 Nominal ({d['nominal']}): ")
+    new_nom = input(f"💰 Nominal ({d['nominal']}): ").strip()
     if new_nom.strip() != "":
         try:
             d["nominal"] = float(new_nom)
         except:
             return print("❌ Nominal harus angka!")
 
-    new_ket = input(f"📝 Keterangan ({d['keterangan']}): ")
+    new_ket = input(f"📝 Keterangan ({d['keterangan']}): ").strip()
     if new_ket.strip() != "":
         d["keterangan"] = new_ket
 
@@ -155,6 +157,8 @@ def lihat(data=None):
 
 
 def lihat_hari():
+    print('⬅️ Tekan ENTER untuk kembali ke main menu\n')
+
     t = input("📅 Masukkan tanggal (YYYY-MM-DD): ")
     data = [d for d in load() if d["tanggal"] == t]
 
@@ -173,6 +177,7 @@ def hapus():
     print("\n📊 DATA SAAT INI")
     print(tabel(data))
     print("\n")
+    print('⬅️ Tekan ENTER 2x untuk kembali ke main menu\n')
 
     pilihan = input("Hapus semua data 🫣? (yes/no): ").strip().lower()
 
@@ -182,7 +187,7 @@ def hapus():
         print("✨ Semua data berhasil dihapus 🫣!\n")
         return  
 
-    id_del = input("🆔 Masukkan ID yang ingin dihapus: ")
+    id_del = input("🆔 Masukkan ID yang ingin dihapus: ").strip()
 
     if id_del not in [d["id"] for d in data]:
         return print("❌ ID tidak ditemukan 😤!\n")
@@ -253,6 +258,10 @@ def ranking_kategori():
     for ket, avg, count in ranking:
         print(f"{ket.capitalize():<15} ⭐ {avg:.2f}   ({count}x)")
 
+    if ranking:
+        top = ranking[0][0].capitalize()
+        print(f"\n\n➡️ Sejauh ini yang paling membuatmu happy adalah: {top} 🤓\n")
+
     print("\n")
 
     input("\n⬅️ Tekan ENTER untuk kembali ke main menu...")
@@ -265,6 +274,7 @@ while True:
     print("=================================")
     print(mood_header_hari_ini())
     print("=================================\n")
+    print("◆━━━━━ DAFTAR  MENU ━━━━━◆\n")
     print("""--------------------------
 |                        |
 |   (1) Tambah Data      |
@@ -304,7 +314,7 @@ while True:
 
     print("\n=================================\n")
 
-    p = input("👉 Pilih menu: ")
+    p = input("👉 Pilih menu: ").strip()
 
     if p == "1":
         clear()
@@ -331,9 +341,9 @@ while True:
         lihat_hari()
 
     elif p == "7":
-       print("👋 Keluar... Sampai jumpa!\n")
+       print("\nKeluar ya? Baiklah, semoga moodmu tidak makin kacau di luar sana. Sampai jumpa lagi 👋!\n")
        break
 
     else:
-        print("❌ Pilihan tidak dikenal!")
+        print("\n❌ Pilihan tidak dikenal!")
 
