@@ -113,7 +113,6 @@ def update_data():
         clear()
         return 
 
-    # Cek ID valid
     dlist = [d for d in data if d["id"] == id_edit]
     if not dlist:
         clear()
@@ -236,7 +235,6 @@ def mood_header_hari_ini():
     data = load()
     today = datetime.now().strftime("%Y-%m-%d")
 
-    # Filter hanya data hari ini
     today_data = [d for d in data if d["tanggal"] == today]
 
     if not today_data:
@@ -276,11 +274,9 @@ def ranking_kategori():
         avg = sum(ratings) / len(ratings)
         ranking.append((ket, avg, len(ratings)))
 
-    # fungsi ambil rata tanpa lambda
     def ambil_rata(item):
         return item[1]
 
-    # sorting menggunakan fungsi biasa
     ranking.sort(key=ambil_rata, reverse=True)
 
     print("\n🏆 RANKING KATEGORI BERDASARKAN MOOD RATA-RATA\n")
@@ -290,11 +286,9 @@ def ranking_kategori():
     for ket, avg, count in ranking:
         print(f"{ket.capitalize():<20} ⭐ {avg:.2f}   ({count}x)")
 
-    # --- Menentukan juara ---
     if ranking:
-        top_rating = ranking[0][1]  # nilai tertinggi
+        top_rating = ranking[0][1] 
 
-        # ambil semua kategori yang punya rata-rata sama
         juara = [ket.capitalize() for ket, avg, count in ranking if avg == top_rating]
 
         print("\n")
