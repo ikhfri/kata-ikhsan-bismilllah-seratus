@@ -13,7 +13,6 @@ def load():
     with open(FILE) as f:
         return [r for r in csv.DictReader(f)]
 
-
 def save(data):
     with open(FILE, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=["id", "tanggal", "nominal", "keterangan", "rating"])
@@ -32,7 +31,6 @@ def rating_status(r):
     else:
         return "🤩 Sangat Puas"
 
-
 def tabel(data):
     rows = [["🆔 ID","📆 Tanggal","💰 Nominal","📝 Keterangan","⭐ Rating","🎭 Status"]]
     
@@ -49,7 +47,6 @@ def tabel(data):
 
     w = [max(len(str(r[i])) for r in rows) for i in range(len(rows[0]))]
     return "\n".join(" | ".join(str(r[i]).ljust(w[i]) for i in range(len(r))) for r in rows)
-
 
 def tambah():
     data = load()
@@ -135,8 +132,6 @@ def update_data():
     clear()
     print("\n✅ Data berhasil diupdate!\n")
 
-
-
 def lihat(data=None):
     clear()
     data = load() if data is None else data
@@ -153,7 +148,6 @@ def lihat(data=None):
     print(f"\n📌 Total Pengeluaran: 💰 Rp{total:.0f}")
     print(f"📌 Rata-rata Rating: ⭐ {avg:.1f} — {status}\n")
 
-
 def lihat_hari():
     t = input("📅 Masukkan tanggal (YYYY-MM-DD): ")
     data = [d for d in load() if d["tanggal"] == t]
@@ -162,7 +156,6 @@ def lihat_hari():
         return print("❌ Tidak ada data tanggal tersebut.")
 
     lihat(data)
-
 
 def hapus():
     data = load()
@@ -188,6 +181,7 @@ def hapus():
     save(data)
     clear()
     print("🗑️ Data berhasil dihapus!\n")
+
 def mood_header_hari_ini():
     data = load()
     today = datetime.now().strftime("%Y-%m-%d")
@@ -208,10 +202,49 @@ def mood_header_hari_ini():
         return f"🎭 Mood Hari Ini: 😁 {avg:.1f} — Puas"
     else:
         return f"🎭 Mood Hari Ini: 🤩 {avg:.1f} — Sangat Puas"
+    
+def ranking_kategori():
+    data = load()
+    clear()
+
+    if not data:
+        print("📭 Belum ada data.")
+        return
+
+    kategori_map = {}
+
+    for d in data:
+        ket = d["keterangan"].strip().lower()
+        rating = int(d["rating"])
+
+        if ket not in kategori_map:
+            kategori_map[ket] = []
+        kategori_map[ket].append(rating)
+
+    ranking = []
+    for ket, ratings in kategori_map.items():
+        avg = sum(ratings) / len(ratings)
+        ranking.append((ket, avg, len(ratings)))
+
+    # Fungsi sorting 
+    def ambil_rata(item):
+        return item[1]
+
+    ranking.sort(key=ambil_rata, reverse=True)
+
+    print("\n🏆 RANKING KATEGORI BERDASARKAN MOOD RATA-RATA\n")
+    print("Kategori | Rata-rata | Jumlah Data")
+    print("-----------------------------------")
+
+    for ket, avg, count in ranking:
+        print(f"{ket.capitalize():<15} ⭐ {avg:.2f}   ({count}x)")
+
+    print("\n")
+
 
 while True:
     print("\n============================")
-    print("💵 **MOOD SPENDER** 💵")
+    print("💵 **MOODSPENDER** 💵")
     print("============================")
     print(mood_header_hari_ini())
     print("============================")
@@ -219,8 +252,9 @@ while True:
     print("2️⃣  Update Data")
     print("3️⃣  Lihat Semua")
     print("4️⃣  Hapus Data")
-    print("5️⃣  Keluar")
+    print("5️⃣  Ranking Kategori Mood")
     print("6️⃣  Lihat Per Hari")
+    print("7️⃣  Keluar")
     print("============================")
 
     p = input("👉 Pilih menu: ")
@@ -242,12 +276,16 @@ while True:
         hapus()
 
     elif p == "5":
-        print("👋 Keluar... Sampai jumpa!\n")
-        break
+        clear()
+        ranking_kategori()
 
     elif p == "6":
         clear()
         lihat_hari()
+
+    elif p == "7":
+       print("👋 Keluar... Sampai jumpa!\n")
+       break
 
     else:
         print("❌ Pilihan tidak dikenal!")
