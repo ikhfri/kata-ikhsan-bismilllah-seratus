@@ -44,14 +44,17 @@ def tabel(data):
             d["rating"],
             status
         ])
-
     w = [max(len(str(r[i])) for r in rows) for i in range(len(rows[0]))]
+    
     return "\n".join(" | ".join(str(r[i]).ljust(w[i]) for i in range(len(r))) for r in rows)
 
 def tambah():
     data = load()
 
-    print("\n💸 Tambah Pengeluaran")
+    print("""\n=======================================
+        💸 Tambah Pengeluaran
+=======================================\n"""
+)
 
     try:
         nominal = float(input("💰 Nominal: "))
@@ -243,11 +246,11 @@ def ranking_kategori():
 
 
 while True:
-    print("\n============================")
+    print("\n=================================")
     print("💵 **MOODSPENDER** 💵")
-    print("============================")
+    print("=================================")
     print(mood_header_hari_ini())
-    print("============================")
+    print("=================================\n")
     print("""--------------------------
 |                        |
 |   (1) Tambah Data      |
@@ -285,7 +288,7 @@ while True:
 |                        |
 --------------------------""")
 
-    print("============================")
+    print("\n=================================\n")
 
     p = input("👉 Pilih menu: ")
 
